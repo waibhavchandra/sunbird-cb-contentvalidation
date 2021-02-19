@@ -1,0 +1,133 @@
+{
+  "line_analysis": [
+    {
+      "classification": "Not Offensive",
+      "line": "1",
+      "probability": 0.9221107318387898
+    },
+    {
+      "classification": "Not Offensive",
+      "line": " Scumbag 2",
+      "probability": 0.6631683000506923
+    },
+    {
+      "classification": "Offensive",
+      "line": " Shit 3",
+      "probability": 0.9999999999999699
+    },
+    {
+      "classification": "Not Offensive",
+      "line": " lazy fools 6",
+      "probability": 0.6211507545848786
+    },
+    {
+      "classification": "Not Offensive",
+      "line": " Bad (Context*) 5",
+      "probability": 0.948078289437103
+    },
+    {
+      "classification": "Not Offensive",
+      "line": " Liars 7",
+      "probability": 0.5652781880421478
+    },
+    {
+      "classification": "Not Offensive",
+      "line": " Badmashi 4",
+      "probability": 0.9221107318387898
+    },
+    {
+      "classification": "Not Offensive",
+      "line": " bloody Chair 9",
+      "probability": 0.6772184813764229
+    },
+    {
+      "classification": "Offensive",
+      "line": " bloody liar 8",
+      "probability": 0.9952684145026981
+    },
+    {
+      "classification": "Offensive",
+      "line": " Damn 11",
+      "probability": 0.9956094125546012
+    },
+    {
+      "classification": "Not Offensive",
+      "line": " bloody fellow 10",
+      "probability": 0.5314020027035613
+    },
+    {
+      "classification": "Not Offensive",
+      "line": " Deceive 12",
+      "probability": 0.9022752713327722
+    },
+    {
+      "classification": "Not Offensive",
+      "line": " dacoits 14",
+      "probability": 0.919382298329857
+    },
+    {
+      "classification": "Offensive",
+      "line": " bucket of shit",
+      "probability": 0.9999999937435085
+    },
+    {
+      "classification": "Not Offensive",
+      "line": " Darling 13",
+      "probability": 0.9739661248165123
+    }
+  ],
+  "overall_text_classification": {
+    "classification": "Offensive",
+    "probability": 0.9999999983543048,
+    "text": "1. Scumbag 2. Shit 3. Badmashi 4. Bad (Context*) 5. lazy fools 6. Liars 7. bloody liar 8. bloody Chair 9. bloody fellow 10. Damn 11. Deceive 12. Darling 13. dacoits 14. bucket of shit"
+  },
+  "performance": {
+    "custom_model_line_analysis_time_taken": 0.11583161354064941,
+    "custom_model_overall_text_classification_time_taken": 0.010649442672729492,
+    "num_lines": 15,
+    "num_words": 35,
+    "spacy_word_analysis_time_taken": 0.4301421642303467
+  },
+  "possible_profane_word_count": 3,
+  "possible_profanity": [
+    "damn",
+    "bloody",
+    "shit"
+  ],
+  "possible_profanity_categorical": {
+    "bloody": {
+      "count": 3,
+      "details": {
+        "offensive": "severe"
+      }
+    },
+    "damn": {
+      "count": 1,
+      "details": {
+        "offensive": "severe"
+      }
+    },
+    "shit": {
+      "count": 2,
+      "details": {
+        "offensive": "severe"
+      }
+    }
+  },
+  "possible_profanity_frequency": [
+    {
+      "no_of_occurrence": 3,
+      "word": "bloody"
+    },
+    {
+      "no_of_occurrence": 1,
+      "word": "damn"
+    },
+    {
+      "no_of_occurrence": 2,
+      "word": "shit"
+    }
+  ],
+  "text_original": "1. Scumbag 2. Shit 3. Badmashi 4. Bad (Context*) 5. lazy fools 6. Liars 7. bloody liar 8. bloody Chair 9. bloody fellow 10. Damn 11. Deceive 12. Darling 13. dacoits 14. bucket of shit",
+  "text_tagged": "1. scumbag 2. [shit](possible profanity) 3. badmashi 4. bad (context*) 5. lazy fools 6. liars 7. [bloody](possible profanity) liar 8. [bloody](possible profanity) chair 9. [bloody](possible profanity) fellow 10. [damn](possible profanity) 11. deceive 12. darling 13. dacoits 14. bucket of [shit](possible profanity)"
+}
