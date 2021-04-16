@@ -41,4 +41,10 @@ public class Configuration {
 	@Value("${sb-ext.searchv5.searchpath}")
 	private String searchV5Path;
 
+	@Value("${profanity.image.service.host}")
+	private String profanityImageServiceHost;
+
+	@Value("${profanity.image.service.path}")
+	private String profanityImageServicePath;
+
 }

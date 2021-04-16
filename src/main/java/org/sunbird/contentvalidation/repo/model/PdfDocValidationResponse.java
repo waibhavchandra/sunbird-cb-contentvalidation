@@ -1,7 +1,9 @@
 package org.sunbird.contentvalidation.repo.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.cassandra.core.mapping.Column;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
@@ -9,7 +11,9 @@ import org.springframework.data.cassandra.core.mapping.Table;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.sunbird.contentvalidation.model.ProfanityImageAnalysis;
 import org.sunbird.contentvalidation.model.ProfanityWordFrequency;
 
 @Table("pdf_validation_response")
@@ -48,6 +52,9 @@ public class PdfDocValidationResponse {
 
 	@Column("profanity_word_list")
 	private List<ProfanityWordFrequency> profanityWordList;
+
+	@Column("image_analysis_map")
+	private Map<Integer, List<ProfanityImageAnalysis>> profanityImageAnalysisMap;
 
 	public void addProfanityWordFrequency(List<ProfanityWordFrequency> wordFrequencyList) {
 		if (profanityWordList == null || profanityWordList.isEmpty()) {
@@ -93,6 +100,13 @@ public class PdfDocValidationResponse {
 		} else {
 			this.image_occurances = this.image_occurances + ", " + (pageIndex+1);
 		}
+	}
+
+	public void addProfanityImageAnalysis(Map<Integer, List<ProfanityImageAnalysis>> imageAnalysisMap) {
+		if (CollectionUtils.isEmpty(profanityImageAnalysisMap)) {
+			profanityImageAnalysisMap = new HashMap<>();
+		}
+		profanityImageAnalysisMap.putAll(imageAnalysisMap);
 	}
 
 
