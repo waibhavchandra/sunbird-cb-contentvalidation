@@ -40,10 +40,5 @@ public class Configuration {
 	@Value("${content-hierarchy-endpoint}")
 	private String hierarchyEndPoint;
 
-	@Value("${profanity.image.service.host}")
-	private String profanityImageServiceHost;
-
-	@Value("${profanity.image.service.path}")
-	private String profanityImageServicePath;
 
 }
