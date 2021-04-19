@@ -1,6 +1,6 @@
 package org.sunbird.contentvalidation.model;
 
-public class IndiaClassification {
+public class IndiaMapClassification {
     private Classification classification;
     private double percentage_probability;
     private String present;

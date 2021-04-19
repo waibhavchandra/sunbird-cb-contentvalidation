@@ -17,4 +17,20 @@ public class ProfanityIndiaMapAnalysis {
 
     @Column("probability")
     private float probability;
+
+    public Integer getImageNo() {
+        return imageNo;
+    }
+
+    public void setImageNo(Integer imageNo) {
+        this.imageNo = imageNo;
+    }
+
+    public float getProbability() {
+        return probability;
+    }
+
+    public void setProbability(float probability) {
+        this.probability = probability;
+    }
 }

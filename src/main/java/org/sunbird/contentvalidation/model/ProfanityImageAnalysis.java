@@ -18,4 +18,28 @@ public class ProfanityImageAnalysis {
 
     @Column("is_safe")
     private boolean isSafe;
+
+    public Integer getImageNo() {
+        return imageNo;
+    }
+
+    public void setImageNo(Integer imageNo) {
+        this.imageNo = imageNo;
+    }
+
+    public String getClassification() {
+        return classification;
+    }
+
+    public void setClassification(String classification) {
+        this.classification = classification;
+    }
+
+    public boolean isSafe() {
+        return isSafe;
+    }
+
+    public void setSafe(boolean safe) {
+        isSafe = safe;
+    }
 }

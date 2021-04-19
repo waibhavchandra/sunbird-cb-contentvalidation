@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.multipdf.Splitter;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -26,13 +27,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.sunbird.contentvalidation.config.Configuration;
 import org.sunbird.contentvalidation.config.Constants;
-import org.sunbird.contentvalidation.model.ContentPdfValidation;
-import org.sunbird.contentvalidation.model.HierarchyResponse;
-import org.sunbird.contentvalidation.model.Profanity;
-import org.sunbird.contentvalidation.model.ProfanityCategorial;
-import org.sunbird.contentvalidation.model.ProfanityResponseWrapper;
-import org.sunbird.contentvalidation.model.ProfanityWordCount;
-import org.sunbird.contentvalidation.model.ProfanityWordFrequency;
+import org.sunbird.contentvalidation.model.*;
 import org.sunbird.contentvalidation.repo.ContentValidationRepoServiceImpl;
 import org.sunbird.contentvalidation.repo.PdfDocValidationRepository;
 import org.sunbird.contentvalidation.repo.model.PdfDocValidationResponse;
@@ -44,6 +39,8 @@ import org.sunbird.contentvalidation.util.CommonUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.log4j.Log4j2;
+
+import javax.imageio.ImageIO;
 
 @Service
 @Log4j2
@@ -307,7 +304,7 @@ public class ContentValidationServiceImpl implements ContentValidationService {
 				}
 			}
 			response.incrementTotalNoOfPagesCompleted();
-			extractImagesAndUpdateThPdfeResponse(doc.getPages().get(p), p, response);
+			extractImagesAndUpdateThPdfeResponse(fileName, doc.getPages().get(p), p, response);
 			long perPageTime = System.currentTimeMillis() - startTime;
 
 			if (log.isDebugEnabled()) {
@@ -336,20 +333,56 @@ public class ContentValidationServiceImpl implements ContentValidationService {
 	 * @param index
 	 * @param response
 	 */
-	private void extractImagesAndUpdateThPdfeResponse(PDPage page, int index, PdfDocValidationResponse response) {
+	private void extractImagesAndUpdateThPdfeResponse(String fileName, PDPage page, int index, PdfDocValidationResponse response) {
 		PDResources resources = page.getResources();
+		int count = 0;
 		try {
 			for (COSName name : resources.getXObjectNames()) {
 				PDXObject o = null;
+				int imageNo = 0;
+				Map<Integer, List<ProfanityImageAnalysis>> profanityImageAnalysisMap = new HashMap<>();
+				Map<Integer, List<ProfanityIndiaMapAnalysis>> indiaAnalysisMap = new HashMap<>();
+				List<ProfanityImageAnalysis> profanityImageAnalysisList = new ArrayList<>();
+				List<ProfanityIndiaMapAnalysis> profanityIndiaMapList = new ArrayList<>();
+				ProfanityImageAnalysis profanityImageAnalysis = null;
+				ProfanityIndiaMapAnalysis profanityIndiaMapAnalysis = null;
 				o = resources.getXObject(name);
 				if (o instanceof PDImageXObject) {
+					profanityImageAnalysis = new ProfanityImageAnalysis();
+					profanityIndiaMapAnalysis = new ProfanityIndiaMapAnalysis();
+					imageNo++;
 					response.incrementTotalPagesImages();
 					response.addImageOccurances(index);
-					// No need to continue the loop for the next image in the same page
-					break;
+					PDImageXObject image = (PDImageXObject) o;
+					File f = File.createTempFile(fileName + "_" + index + "_", Integer.toString(count++) + ".png");
+					ImageIO.write(image.getImage(), "png", f);
+					log.info("---------------------------- Image Result -------------------------------");
+					log.info("FileName : " + f.getName());
+					Map<String, Object> extResponse = getProfanityCheckForImage(f.getName(), f);
+					ImageResponse imageResponse = mapper.convertValue(extResponse, ImageResponse.class);
+					log.info("" + imageResponse);
+					if (!ObjectUtils.isEmpty(imageResponse.getPayload()) && !ObjectUtils.isEmpty(imageResponse.getPayload().getImage_profanity())) {
+						profanityImageAnalysis.setClassification(imageResponse.getPayload().getClassification());
+						profanityImageAnalysis.setImageNo(imageNo);
+						profanityImageAnalysis.setSafe(imageResponse.getPayload().getImage_profanity().isIs_safe());
+						profanityImageAnalysisList.add(profanityImageAnalysis);
+					}
+					if (!ObjectUtils.isEmpty(imageResponse.getPayload()) && !ObjectUtils.isEmpty(imageResponse.getPayload().getIndia_classification())) {
+						profanityIndiaMapAnalysis.setImageNo(imageNo);
+						profanityIndiaMapAnalysis.setProbability((float)(imageResponse.getPayload().getIndia_classification().get(0).getPercentage_probability() / 100));
+						profanityIndiaMapList.add(profanityIndiaMapAnalysis);
+					}
 				}
-			}
-		} catch (IOException e) {
+				if(!CollectionUtils.isEmpty(profanityImageAnalysisList)){
+					profanityImageAnalysisMap.put(index+1, profanityImageAnalysisList);
+					response.addProfanityImageAnalysis(profanityImageAnalysisMap);
+				}
+				if(!CollectionUtils.isEmpty(profanityIndiaMapList)){
+					indiaAnalysisMap.put(index+1, profanityIndiaMapList);
+					response.addProfanityIndiaMapAnalysis(indiaAnalysisMap);
+				}
+				}
+			} catch (IOException e) {
 			log.error("Error occured : {}", e);
 		}
 	}
@@ -364,4 +397,15 @@ public class ContentValidationServiceImpl implements ContentValidationService {
 		}
 	}
 
+	public Map<String, Object> getProfanityCheckForImage(String fileName, File imageFile) {
+		StringBuilder url = new StringBuilder();
+		url.append(configuration.getProfanityImageServiceHost()).append(configuration.getProfanityImageServicePath());
+		Object response = outboundRequestHandlerService.fetchResultsForImages(url.toString(), imageFile, fileName);
+		try {
+			log.info(mapper.writeValueAsString(mapper.convertValue(response, Map.class)));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return mapper.convertValue(response, Map.class);
+	}
 }

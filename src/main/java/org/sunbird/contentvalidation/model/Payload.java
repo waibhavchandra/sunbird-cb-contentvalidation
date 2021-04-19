@@ -5,7 +5,7 @@ import java.util.List;
 public class Payload {
     private String classification;
     private ImageProfanity image_profanity;
-    private List<IndiaClassification> india_classification;
+    private List<IndiaMapClassification> india_classification;
     private TextProfanity text_profanity;
 
     public String getClassification() {
@@ -24,11 +24,11 @@ public class Payload {
         this.image_profanity = image_profanity;
     }
 
-    public List<IndiaClassification> getIndia_classification() {
+    public List<IndiaMapClassification> getIndia_classification() {
         return india_classification;
     }
 
-    public void setIndia_classification(List<IndiaClassification> india_classification) {
+    public void setIndia_classification(List<IndiaMapClassification> india_classification) {
         this.india_classification = india_classification;
     }
 

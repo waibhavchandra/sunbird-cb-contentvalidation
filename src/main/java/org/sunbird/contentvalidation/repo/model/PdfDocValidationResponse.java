@@ -1,20 +1,20 @@
 package org.sunbird.contentvalidation.repo.model;
 
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.data.cassandra.core.mapping.Column;
+import org.springframework.data.cassandra.core.mapping.PrimaryKey;
+import org.springframework.data.cassandra.core.mapping.Table;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+import org.sunbird.contentvalidation.model.ProfanityImageAnalysis;
+import org.sunbird.contentvalidation.model.ProfanityIndiaMapAnalysis;
+import org.sunbird.contentvalidation.model.ProfanityWordFrequency;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.data.cassandra.core.mapping.Column;
-import org.springframework.data.cassandra.core.mapping.PrimaryKey;
-import org.springframework.data.cassandra.core.mapping.Table;
-
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-import org.sunbird.contentvalidation.model.ProfanityImageAnalysis;
-import org.sunbird.contentvalidation.model.ProfanityWordFrequency;
 
 @Table("pdf_validation_response")
 @Getter
@@ -55,6 +55,10 @@ public class PdfDocValidationResponse {
 
 	@Column("image_analysis_map")
 	private Map<Integer, List<ProfanityImageAnalysis>> profanityImageAnalysisMap;
+
+	@Column("india_map_classification")
+	private Map<Integer, List<ProfanityIndiaMapAnalysis>> indiaMapCalssification;
+
 
 	public void addProfanityWordFrequency(List<ProfanityWordFrequency> wordFrequencyList) {
 		if (profanityWordList == null || profanityWordList.isEmpty()) {
@@ -109,5 +113,11 @@ public class PdfDocValidationResponse {
 		profanityImageAnalysisMap.putAll(imageAnalysisMap);
 	}
 
+	public void addProfanityIndiaMapAnalysis(Map<Integer, List<ProfanityIndiaMapAnalysis>> indiaMapAnalysis) {
+		if (CollectionUtils.isEmpty(indiaMapCalssification)) {
+			indiaMapCalssification = new HashMap<>();
+		}
+		indiaMapCalssification.putAll(indiaMapAnalysis);
+	}
 
 }
