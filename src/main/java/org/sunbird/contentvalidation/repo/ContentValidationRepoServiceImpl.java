@@ -88,7 +88,7 @@ public class ContentValidationRepoServiceImpl {
 		contentIds.add(contentId);
 		try {
 			StringBuilder url = new StringBuilder();
-			url.append(configuration.getContentHost()).append(configuration.getHierarchyEndPoint()).append(contentId).append("?mode=edit");
+			url.append(configuration.getContentHost()).append(configuration.getHierarchyEndPoint()).append("/"+contentId).append("?mode=edit");
 			log.info("URL for Hierarchy End Point :: {}", url);
 			Map response = mapper.convertValue(requestHandlerService.fetchResult(url.toString()), Map.class);
 			log.info("Response of Hierarchy search request {}", mapper.writeValueAsString(response));
