@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 import org.sunbird.contentvalidation.config.Configuration;
 import org.sunbird.contentvalidation.repo.model.PdfDocValidationResponse;
 import org.sunbird.contentvalidation.repo.model.PdfDocValidationResponsePrimaryKey;
@@ -88,17 +89,23 @@ public class ContentValidationRepoServiceImpl {
 		contentIds.add(contentId);
 		try {
 			StringBuilder url = new StringBuilder();
-			url.append(configuration.getContentHost()).append(configuration.getHierarchyEndPoint()).append("/"+contentId).append("?mode=edit");
+			url.append(configuration.getContentHost()).append(configuration.getHierarchyEndPoint()).append("/" + contentId).append("?mode=edit");
 			log.info("URL for Hierarchy End Point :: {}", url);
 			Map response = mapper.convertValue(requestHandlerService.fetchResult(url.toString()), Map.class);
 			log.info("Response of Hierarchy search request {}", mapper.writeValueAsString(response));
 			if (!ObjectUtils.isEmpty(response.get("result"))) {
 				Map<String, Object> result = (Map<String, Object>) response.get("result");
-				Map<String, Object> content = (Map<String, Object>)result.get("content");
-				if(!CollectionUtils.isEmpty(content)){
-					List<String> childIds = (List<String>) content.get("childNodes");
-					if (!CollectionUtils.isEmpty(childIds)) {
-						contentIds.addAll(childIds);
+				Map<String, Object> content = (Map<String, Object>) result.get("content");
+				if (!CollectionUtils.isEmpty(content)) {
+					if (content.get("mimeType").equals("application/pdf"))
+						contentIds.add((String) content.get("mimeType"));
+					List<Map<String, Object>> children = (List<Map<String, Object>>) content.get("children");
+					if (!CollectionUtils.isEmpty(children)) {
+						children.forEach(child -> {
+							if (!StringUtils.isEmpty(child.get("mimeType")) && child.get("mimeType").equals("application/pdf")) {
+								contentIds.add((String) child.get("mimeType"));
+							}
+						});
 					}
 				}
 			}
