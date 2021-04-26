@@ -86,7 +86,6 @@ public class ContentValidationRepoServiceImpl {
 
 	public List<String> getParentAndChildContentIds(String contentId) {
 		List<String> contentIds = new ArrayList<>();
-		contentIds.add(contentId);
 		try {
 			StringBuilder url = new StringBuilder();
 			url.append(configuration.getContentHost()).append(configuration.getHierarchyEndPoint()).append("/" + contentId).append("?mode=edit");
@@ -98,12 +97,12 @@ public class ContentValidationRepoServiceImpl {
 				Map<String, Object> content = (Map<String, Object>) result.get("content");
 				if (!CollectionUtils.isEmpty(content)) {
 					if (content.get("mimeType").equals("application/pdf"))
-						contentIds.add((String) content.get("mimeType"));
+						contentIds.add(contentId);
 					List<Map<String, Object>> children = (List<Map<String, Object>>) content.get("children");
 					if (!CollectionUtils.isEmpty(children)) {
 						children.forEach(child -> {
 							if (!StringUtils.isEmpty(child.get("mimeType")) && child.get("mimeType").equals("application/pdf")) {
-								contentIds.add((String) child.get("mimeType"));
+								contentIds.add((String) child.get("identifier"));
 							}
 						});
 					}
