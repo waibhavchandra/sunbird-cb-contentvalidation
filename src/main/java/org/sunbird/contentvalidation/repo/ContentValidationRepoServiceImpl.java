@@ -9,12 +9,16 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.sunbird.contentvalidation.config.Configuration;
+import org.sunbird.contentvalidation.model.contentsearch.sunbirdresp.Child;
+import org.sunbird.contentvalidation.model.contentsearch.sunbirdresp.HierarchyResp;
 import org.sunbird.contentvalidation.repo.model.PdfDocValidationResponse;
 import org.sunbird.contentvalidation.repo.model.PdfDocValidationResponsePrimaryKey;
 import org.sunbird.contentvalidation.service.impl.OutboundRequestHandlerServiceImpl;
 
 import lombok.extern.log4j.Log4j2;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -81,7 +85,12 @@ public class ContentValidationRepoServiceImpl {
 	}
 
 	public List<PdfDocValidationResponse> getContentValidationResponse(String rootOrg, String wid, String contentId){
-		return pdfRepo.findProgressByContentIds(getParentAndChildContentIds(contentId));
+		Map<String, String> identifierAndPdfFileName = getParentAndChildContentId(contentId);
+		List<PdfDocValidationResponse> responses = new ArrayList<>();
+		identifierAndPdfFileName.forEach((k,v) ->{
+			responses.add(pdfRepo.findProgressByContentIdAndPdfFileName(k, v));
+		});
+		return responses;
 	}
 
 	public List<String> getParentAndChildContentIds(String contentId) {
@@ -113,5 +122,49 @@ public class ContentValidationRepoServiceImpl {
 			log.error("Parsing error occured!", e);
 		}
 		return contentIds;
+	}
+
+	public Map<String, String> getParentAndChildContentId(String contentId) {
+		Map<String, String> contentIdAndFilesName = new HashMap<>();
+		try {
+			StringBuilder url = new StringBuilder();
+			url.append(configuration.getContentHost()).append(configuration.getHierarchyEndPoint()).append("/" + contentId).append("?mode=edit");
+			log.info("URL for Hierarchy End Point :: {}", url);
+			HierarchyResp response = mapper.convertValue(requestHandlerService.fetchResult(url.toString()), HierarchyResp.class);
+			log.info("Response of Hierarchy search request {}", mapper.writeValueAsString(response));
+			if(!ObjectUtils.isEmpty(response.getResult())){
+				if("application/pdf".equals(response.getResult().getContent().getMediaType())){
+				String downloadUrl = response.getResult().getContent().getDownloadUrl();
+				if(!StringUtils.isEmpty(downloadUrl)){
+					downloadUrl =  downloadUrl.split("/")[7];
+					contentIdAndFilesName.put(contentId, downloadUrl);
+				}
+				}
+				if(!CollectionUtils.isEmpty(response.getResult().getContent().getChildren())){
+					addValueFromChildren(response.getResult().getContent().getChildren(), contentIdAndFilesName);
+				}
+			}
+			log.info("Final map , {}", mapper.writeValueAsString(contentIdAndFilesName));
+		} catch (Exception e) {
+			log.error("Parsing error occurred!", e);
+		}
+		return null;
+	}
+
+	private void addValueFromChildren(List<Child> children, Map<String, String> contentIdAndFilesName) {
+		if(CollectionUtils.isEmpty(children))
+			return;
+		for (Child child : children) {
+			if (ObjectUtils.isEmpty(child))
+				return;
+			if ("application/pdf".equals(child.getMimeType())) {
+				String downloadUrl = child.getArtifactUrl();
+				if (!StringUtils.isEmpty(downloadUrl)) {
+					downloadUrl = downloadUrl.split("/")[7];
+					contentIdAndFilesName.put(child.getIdentifier(), downloadUrl);
+				}
+			}
+			addValueFromChildren(child.getChildren(), contentIdAndFilesName);
+		}
 	}
 }
