@@ -148,7 +148,7 @@ public class ContentValidationRepoServiceImpl {
 		} catch (Exception e) {
 			log.error("Parsing error occurred!", e);
 		}
-		return null;
+		return contentIdAndFilesName;
 	}
 
 	private void addValueFromChildren(List<Child> children, Map<String, String> contentIdAndFilesName) {
