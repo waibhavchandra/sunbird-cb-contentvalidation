@@ -37,7 +37,12 @@ node('build-slave') {
                 sh('chmod 777 build.sh')
                 sh("bash -x build.sh ${build_tag} ${env.NODE_NAME} ${hub_org}")
             }
-        
+         stage('ArchiveArtifacts') {
+                   archiveArtifacts "metadata.json"		     
+		   sh ("echo ${build_tag} > build_tag.txt")
+                    archiveArtifacts "build_tag.txt" 
+                    currentBuild.description = "${build_tag}"
+                }
 
       }
         
