@@ -98,9 +98,9 @@ public class ContentValidationRepoServiceImpl {
 		try {
 			StringBuilder url = new StringBuilder();
 			url.append(configuration.getContentHost()).append(configuration.getHierarchyEndPoint()).append("/" + contentId).append("?mode=edit");
-			log.info("URL for Hierarchy End Point :: {}", url);
+//			log.info("URL for Hierarchy End Point :: {}", url);
 			Map response = mapper.convertValue(requestHandlerService.fetchResult(url.toString()), Map.class);
-			log.info("Response of Hierarchy search request {}", mapper.writeValueAsString(response));
+//			log.info("Response of Hierarchy search request {}", mapper.writeValueAsString(response));
 			if (!ObjectUtils.isEmpty(response.get("result"))) {
 				Map<String, Object> result = (Map<String, Object>) response.get("result");
 				Map<String, Object> content = (Map<String, Object>) result.get("content");
@@ -117,7 +117,7 @@ public class ContentValidationRepoServiceImpl {
 					}
 				}
 			}
-			log.info("ContentIds {}", contentIds);
+//			log.info("ContentIds {}", contentIds);
 		} catch (Exception e) {
 			log.error("Parsing error occured!", e);
 		}
@@ -144,7 +144,7 @@ public class ContentValidationRepoServiceImpl {
 					addValueFromChildren(response.getResult().getContent().getChildren(), contentIdAndFilesName);
 				}
 			}
-			log.info("Final map , {}", mapper.writeValueAsString(contentIdAndFilesName));
+//			log.info("Final map , {}", mapper.writeValueAsString(contentIdAndFilesName));
 		} catch (Exception e) {
 			log.error("Parsing error occurred!", e);
 		}
