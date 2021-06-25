@@ -129,9 +129,9 @@ public class ContentValidationRepoServiceImpl {
 		try {
 			StringBuilder url = new StringBuilder();
 			url.append(configuration.getContentHost()).append(configuration.getHierarchyEndPoint()).append("/" + contentId).append("?mode=edit");
-			log.info("URL for Hierarchy End Point :: {}", url);
+//			log.info("URL for Hierarchy End Point :: {}", url);
 			HierarchyResp response = mapper.convertValue(requestHandlerService.fetchResult(url.toString()), HierarchyResp.class);
-			log.info("Response of Hierarchy search request {}", mapper.writeValueAsString(response));
+//			log.info("Response of Hierarchy search request {}", mapper.writeValueAsString(response));
 			if(!ObjectUtils.isEmpty(response.getResult())){
 				if("application/pdf".equals(response.getResult().getContent().getMediaType())){
 				String downloadUrl = response.getResult().getContent().getDownloadUrl();
