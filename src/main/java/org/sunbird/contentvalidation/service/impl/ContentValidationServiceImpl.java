@@ -13,6 +13,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.pdfbox.cos.COSName;
+import org.apache.pdfbox.io.IOUtils;
 import org.apache.pdfbox.multipdf.Splitter;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -148,24 +149,30 @@ public class ContentValidationServiceImpl implements ContentValidationService {
 	 */
 	public PdfDocValidationResponse validatePdfContent(ContentPdfValidation contentPdfValidation) throws IOException {
 		StringBuilder logStr = null;
+		PdfDocValidationResponse response =  null;
 		if (log.isDebugEnabled()) {
 			logStr = new StringBuilder();
 			logStr.append("ValidatePDFContent request: ").append(mapper.writeValueAsString(contentPdfValidation));
 		}
 		long startTime = System.currentTimeMillis();
 		InputStream inputStream = contentProviderService.getContentFile(contentPdfValidation.getPdfDownloadUrl());
-		if (logStr != null) {
-			logStr.append("Time taken to download PDF File: ").append(System.currentTimeMillis() - startTime)
-					.append(" milliseconds");
+		try {
+			if (logStr != null) {
+				logStr.append("Time taken to download PDF File: ").append(System.currentTimeMillis() - startTime)
+						.append(" milliseconds");
+			}
+			//String fileName = contentPdfValidation.getPdfDownloadUrl().split("artifacts%2F")[1];
+			String fileName = contentPdfValidation.getPdfDownloadUrl().split("/")[7];
+			response = performProfanityAnalysis(inputStream, fileName,
+					contentPdfValidation.getContentId());
+			if (logStr != null) {
+				logStr.append("Time take to validate PDF Content: ").append(System.currentTimeMillis() - startTime)
+						.append(" milliseconds");
+				log.debug(logStr.toString());
+			}
 		}
-		//String fileName = contentPdfValidation.getPdfDownloadUrl().split("artifacts%2F")[1];
-		String fileName = contentPdfValidation.getPdfDownloadUrl().split("/")[7];
-		PdfDocValidationResponse response = performProfanityAnalysis(inputStream, fileName,
-				contentPdfValidation.getContentId());
-		if (logStr != null) {
-			logStr.append("Time take to validate PDF Content: ").append(System.currentTimeMillis() - startTime)
-					.append(" milliseconds");
-			log.debug(logStr.toString());
+		finally {
+			IOUtils.closeQuietly(inputStream);
 		}
 		return response;
 	}
@@ -265,63 +272,71 @@ public class ContentValidationServiceImpl implements ContentValidationService {
 		response.setPrimaryKey(
 				PdfDocValidationResponsePrimaryKey.builder().contentId(contentId).pdfFileName(fileName).build());
 		PDDocument doc = PDDocument.load(inputStream);
-		Splitter splitter = new Splitter();
-		List<PDDocument> docPages = splitter.split(doc);
-		enrichTotalPages(contentId, fileName, docPages.size());
-		PDFTextStripper pdfStripper = null;
-		long totalTime = 0l;
-		double overAllClassification = 0.0;
-		for (int p = 0; p < docPages.size(); p++) {
-			long startTime = System.currentTimeMillis();
-			pdfStripper = new PDFTextStripper();
-			pdfStripper.setAddMoreFormatting(false);
-			pdfStripper.setLineSeparator(" ");
-			String text = pdfStripper.getText(docPages.get(p));
-			if (!StringUtils.isEmpty(text) && !commonUtils.emptyCheck(text)) {
-				Profanity profanityResponse = getProfanityCheckForText(text);
-				log.debug("Page wise analysis PageNo: {}, Analysis: {}", p,
-						mapper.writeValueAsString(profanityResponse));
-				for (Map.Entry<String, ProfanityCategorial> profanityCategorial : profanityResponse
-						.getPossible_profanity_categorical().entrySet()) {
-					Map.Entry<String,String> details =  profanityCategorial.getValue().getDetails().entrySet().iterator().next();
-					String category = details.getKey();
-					ProfanityWordFrequency wordFrequency = new ProfanityWordFrequency();
-					wordFrequency.setWord(profanityCategorial.getKey());
-					wordFrequency.setNo_of_occurrence(profanityCategorial.getValue().getCount());
-					wordFrequency.setCategory(category);
-					wordFrequency.addPageOccurred(getPageNumberForIndex(p));
-					response.addProfanityWordFrequency(wordFrequency);
-					response.incrementProfanityWordCount();
+
+		try {
+			Splitter splitter = new Splitter();
+			List<PDDocument> docPages = splitter.split(doc);
+			enrichTotalPages(contentId, fileName, docPages.size());
+			PDFTextStripper pdfStripper = null;
+			long totalTime = 0l;
+			double overAllClassification = 0.0;
+			for (int p = 0; p < docPages.size(); p++) {
+				long startTime = System.currentTimeMillis();
+				pdfStripper = new PDFTextStripper();
+				pdfStripper.setAddMoreFormatting(false);
+				pdfStripper.setLineSeparator(" ");
+				String text = pdfStripper.getText(docPages.get(p));
+				if (!StringUtils.isEmpty(text) && !commonUtils.emptyCheck(text)) {
+					Profanity profanityResponse = getProfanityCheckForText(text);
+					log.debug("Page wise analysis PageNo: {}, Analysis: {}", p,
+							mapper.writeValueAsString(profanityResponse));
+					for (Map.Entry<String, ProfanityCategorial> profanityCategorial : profanityResponse
+							.getPossible_profanity_categorical().entrySet()) {
+						Map.Entry<String, String> details = profanityCategorial.getValue().getDetails().entrySet().iterator().next();
+						String category = details.getKey();
+						ProfanityWordFrequency wordFrequency = new ProfanityWordFrequency();
+						wordFrequency.setWord(profanityCategorial.getKey());
+						wordFrequency.setNo_of_occurrence(profanityCategorial.getValue().getCount());
+						wordFrequency.setCategory(category);
+						wordFrequency.addPageOccurred(getPageNumberForIndex(p));
+						response.addProfanityWordFrequency(wordFrequency);
+						response.incrementProfanityWordCount();
+					}
+					overAllClassification += profanityResponse.getOverall_text_classification().getProbability();
+					if (StringUtils.isEmpty(response.getOverall_text_classification())) {
+						response.setOverall_text_classification(
+								profanityResponse.getOverall_text_classification().getClassification());
+					} else {
+						response.setOverall_text_classification(
+								commonUtils.getProfanityClassification(response.getOverall_text_classification(),
+										profanityResponse.getOverall_text_classification().getClassification()));
+					}
 				}
-				overAllClassification += profanityResponse.getOverall_text_classification().getProbability();
-				if (StringUtils.isEmpty(response.getOverall_text_classification())) {
-					response.setOverall_text_classification(
-							profanityResponse.getOverall_text_classification().getClassification());
-				} else {
-					response.setOverall_text_classification(
-							commonUtils.getProfanityClassification(response.getOverall_text_classification(),
-									profanityResponse.getOverall_text_classification().getClassification()));
+				response.incrementTotalNoOfPagesCompleted();
+				extractImagesAndUpdateThPdfeResponse(fileName, doc.getPages().get(p), p, response);
+				long perPageTime = System.currentTimeMillis() - startTime;
+
+				if (log.isDebugEnabled()) {
+					log.debug("Time taken to perform Profanity Analysis for page {} is {} milliseconds",
+							getPageNumberForIndex(p), perPageTime);
 				}
+				totalTime += perPageTime;
+				repoService.updateContentValidationResult(response, false);
 			}
-			response.incrementTotalNoOfPagesCompleted();
-			extractImagesAndUpdateThPdfeResponse(fileName, doc.getPages().get(p), p, response);
-			long perPageTime = System.currentTimeMillis() - startTime;
+			response.setScore(overAllClassification / (double) docPages.size());
 
 			if (log.isDebugEnabled()) {
-				log.debug("Time taken to perform Profanity Analysis for page {} is {} milliseconds",
-						getPageNumberForIndex(p), perPageTime);
+				log.debug("Time taken to perform Profanity Analysis for document {} is {} milliseconds", fileName,
+						totalTime);
 			}
-			totalTime += perPageTime;
-			repoService.updateContentValidationResult(response, false);
+			repoService.updateContentValidationResult(response, true);
 		}
-		response.setScore(overAllClassification / (double) docPages.size());
-		if (log.isDebugEnabled()) {
-			log.debug("Time taken to perform Profanity Analysis for document {} is {} milliseconds", fileName,
-					totalTime);
+		finally {
+			doc.close();
 		}
-		repoService.updateContentValidationResult(response, true);
 		return response;
 	}
+
 
 	private int getPageNumberForIndex(int index) {
 		return ++index;

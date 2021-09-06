@@ -1,5 +1,4 @@
 package org.sunbird.contentvalidation.model;
-
 import java.util.List;
 
 public class TextProfanity {

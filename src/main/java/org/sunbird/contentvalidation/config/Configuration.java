@@ -34,17 +34,17 @@ public class Configuration {
 	@Value("${kafka.topics.incoming.rest.validation}")
 	private String startContentValidationTopic;
 
+	@Value("${content-service-host}")
+	private String contentHost;
 
-	@Value("${sb-ext.service.host}")
-	private String sbExtActorsModuleURL;
-
-	@Value("${sb-ext.searchv5.searchpath}")
-	private String searchV5Path;
+	@Value("${content-hierarchy-endpoint}")
+	private String hierarchyEndPoint;
 
 	@Value("${profanity.image.service.host}")
 	private String profanityImageServiceHost;
 
 	@Value("${profanity.image.service.path}")
 	private String profanityImageServicePath;
+
 
 }
