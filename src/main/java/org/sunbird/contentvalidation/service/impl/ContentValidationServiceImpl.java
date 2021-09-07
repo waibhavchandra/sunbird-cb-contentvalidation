@@ -290,17 +290,20 @@ public class ContentValidationServiceImpl implements ContentValidationService {
 					Profanity profanityResponse = getProfanityCheckForText(text);
 					log.debug("Page wise analysis PageNo: {}, Analysis: {}", p,
 							mapper.writeValueAsString(profanityResponse));
-					for (Map.Entry<String, ProfanityCategorial> profanityCategorial : profanityResponse
-							.getPossible_profanity_categorical().entrySet()) {
-						Map.Entry<String, String> details = profanityCategorial.getValue().getDetails().entrySet().iterator().next();
-						String category = details.getKey();
-						ProfanityWordFrequency wordFrequency = new ProfanityWordFrequency();
-						wordFrequency.setWord(profanityCategorial.getKey());
-						wordFrequency.setNo_of_occurrence(profanityCategorial.getValue().getCount());
-						wordFrequency.setCategory(category);
-						wordFrequency.addPageOccurred(getPageNumberForIndex(p));
-						response.addProfanityWordFrequency(wordFrequency);
-						response.incrementProfanityWordCount();
+					if(!CollectionUtils.isEmpty(profanityResponse
+							.getPossible_profanity_categorical())){
+						for (Map.Entry<String, ProfanityCategorial> profanityCategorial : profanityResponse
+								.getPossible_profanity_categorical().entrySet()) {
+							Map.Entry<String, String> details = profanityCategorial.getValue().getDetails().entrySet().iterator().next();
+							String category = details.getKey();
+							ProfanityWordFrequency wordFrequency = new ProfanityWordFrequency();
+							wordFrequency.setWord(profanityCategorial.getKey());
+							wordFrequency.setNo_of_occurrence(profanityCategorial.getValue().getCount());
+							wordFrequency.setCategory(category);
+							wordFrequency.addPageOccurred(getPageNumberForIndex(p));
+							response.addProfanityWordFrequency(wordFrequency);
+							response.incrementProfanityWordCount();
+						}
 					}
 					overAllClassification += profanityResponse.getOverall_text_classification().getProbability();
 					if (StringUtils.isEmpty(response.getOverall_text_classification())) {
@@ -415,7 +418,7 @@ public class ContentValidationServiceImpl implements ContentValidationService {
 	public Map<String, Object> getProfanityCheckForImage(String fileName, File imageFile) {
 		StringBuilder url = new StringBuilder();
 		url.append(configuration.getProfanityImageServiceHost()).append(configuration.getProfanityImageServicePath());
-		Object response = outboundRequestHandlerService.fetchResultsForImages(url.toString(), imageFile, fileName);
+		Map<String, Object> response = outboundRequestHandlerService.fetchResultsForImages(url.toString(), imageFile, fileName);
 		try {
 			log.info(mapper.writeValueAsString(mapper.convertValue(response, Map.class)));
 		} catch (JsonProcessingException e) {

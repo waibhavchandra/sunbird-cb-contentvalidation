@@ -116,8 +116,8 @@ public class OutboundRequestHandlerServiceImpl {
 		return responseEntity.getBody();
 	}
 
-	public Object fetchResultsForImages(String uri, File imageFile, String fileName) {
-		Object response = null;
+	public Map<String, Object> fetchResultsForImages(String uri, File imageFile, String fileName) {
+		ResponseEntity<Map> responseEntity = null;
 		try {
 			HttpHeaders header = new HttpHeaders();
 			header.setContentType(MediaType.MULTIPART_FORM_DATA); // Also tried with multipart...
@@ -149,7 +149,7 @@ public class OutboundRequestHandlerServiceImpl {
 
 			log.info("Request --> " + requestEntity);
 
-			response = restTemplate.postForEntity(uri, requestEntity, Map.class);
+			responseEntity = restTemplate.postForEntity(uri, requestEntity, Map.class);
 
 			if (log.isDebugEnabled()) {
 				ObjectMapper mapper = new ObjectMapper();
@@ -159,7 +159,7 @@ public class OutboundRequestHandlerServiceImpl {
 				str.append(Constants.URI_CONSTANT).append(uri).append(System.lineSeparator());
 				str.append(Constants.REQUEST_CONSTANT).append(mapper.writeValueAsString(fileName))
 						.append(System.lineSeparator());
-				str.append(Constants.RESPONSE_CONSTANT).append(mapper.writeValueAsString(response))
+				str.append(Constants.RESPONSE_CONSTANT).append(mapper.writeValueAsString(responseEntity))
 						.append(System.lineSeparator());
 				log.debug(str.toString());
 			}
@@ -168,6 +168,6 @@ public class OutboundRequestHandlerServiceImpl {
 		} catch (Exception e) {
 			log.error(Constants.EXTERNAL_SERVICE_ERROR_CODE, e);
 		}
-		return response;
+		return responseEntity.getBody();
 	}
 }
