@@ -73,7 +73,8 @@ public class ContentValidationRepoServiceImpl {
 			responseExisting.setTotal_page_images(newResponse.getTotal_page_images());
 			responseExisting.setProfanityWordList(newResponse.getProfanityWordList());
 			responseExisting.setImage_occurances(newResponse.getImage_occurances());
-
+			responseExisting.setProfanityImageAnalysisMap(newResponse.getProfanityImageAnalysisMap());
+			responseExisting.setIndiaMapClassification(newResponse.getIndiaMapClassification());
 			pdfRepo.save(responseExisting);
 		} else {
 			log.error("Failed to find existing record from latestResponse");
