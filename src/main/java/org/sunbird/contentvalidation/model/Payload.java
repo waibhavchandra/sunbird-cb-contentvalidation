@@ -1,12 +1,15 @@
 package org.sunbird.contentvalidation.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Payload {
     private String classification;
     private ImageProfanity image_profanity;
     private List<IndiaMapClassification> india_classification;
-    private TextProfanity text_profanity;
+//    private Profanity text_profanity;
 
     public String getClassification() {
         return classification;
@@ -32,11 +35,11 @@ public class Payload {
         this.india_classification = india_classification;
     }
 
-    public TextProfanity getText_profanity() {
-        return text_profanity;
-    }
-
-    public void setText_profanity(TextProfanity text_profanity) {
-        this.text_profanity = text_profanity;
-    }
+//    public Profanity getText_profanity() {
+//        return text_profanity;
+//    }
+//
+//    public void setText_profanity(Profanity text_profanity) {
+//        this.text_profanity = text_profanity;
+//    }
 }

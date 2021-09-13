@@ -1,5 +1,8 @@
 package org.sunbird.contentvalidation.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ImageResponse {
     private int code;
     private Payload payload;
