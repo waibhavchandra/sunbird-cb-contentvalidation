@@ -388,6 +388,11 @@ public class ContentValidationServiceImpl implements ContentValidationService {
 					if (!ObjectUtils.isEmpty(imageResponse.getPayload()) && !ObjectUtils.isEmpty(imageResponse.getPayload().getIndia_classification())) {
 						profanityIndiaMapAnalysis.setImageNo(imageNo);
 						profanityIndiaMapAnalysis.setProbability((float)(imageResponse.getPayload().getIndia_classification().get(0).getPercentage_probability() / 100));
+						profanityIndiaMapAnalysis.setIncorrect_percentage((float)(imageResponse.getPayload().getIndia_classification().get(0).getClassification().getIncorrect_percentage() / 100));
+						profanityIndiaMapAnalysis.setIs_india_map_detected(false);
+						if(profanityIndiaMapAnalysis.getIncorrect_percentage() < .50){
+							profanityIndiaMapAnalysis.setIs_india_map_detected(true);
+						}
 						profanityIndiaMapList.add(profanityIndiaMapAnalysis);
 					}
 				}

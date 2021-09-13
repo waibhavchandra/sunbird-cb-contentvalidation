@@ -28,4 +28,5 @@ public class IndiaMapClassification {
     public void setPresent(String present) {
         this.present = present;
     }
+
 }
