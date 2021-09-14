@@ -16,13 +16,13 @@ public class ProfanityIndiaMapAnalysis {
     private Integer imageNo;
 
     @Column("probability")
-    private float probability;
+    private Float probability;
 
     @Column("incorrect_percentage")
-    private float incorrect_percentage;
+    private Float incorrect_percentage;
 
     @Column("is_india_map_detected")
-    private boolean is_india_map_detected;
+    private Boolean is_india_map_detected;
 
     public Integer getImageNo() {
         return imageNo;
@@ -32,27 +32,27 @@ public class ProfanityIndiaMapAnalysis {
         this.imageNo = imageNo;
     }
 
-    public float getProbability() {
+    public Float getProbability() {
         return probability;
     }
 
-    public void setProbability(float probability) {
+    public void setProbability(Float probability) {
         this.probability = probability;
     }
 
-    public float getIncorrect_percentage() {
+    public Float getIncorrect_percentage() {
         return incorrect_percentage;
     }
 
-    public void setIncorrect_percentage(float incorrect_percentage) {
+    public void setIncorrect_percentage(Float incorrect_percentage) {
         this.incorrect_percentage = incorrect_percentage;
     }
 
-    public boolean isIs_india_map_detected() {
+    public Boolean getIs_india_map_detected() {
         return is_india_map_detected;
     }
 
-    public void setIs_india_map_detected(boolean is_india_map_detected) {
+    public void setIs_india_map_detected(Boolean is_india_map_detected) {
         this.is_india_map_detected = is_india_map_detected;
     }
 }
