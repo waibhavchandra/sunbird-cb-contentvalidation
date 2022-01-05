@@ -36,6 +36,9 @@ public class ContentValidationRepoServiceImpl {
 	@Autowired
 	private ObjectMapper mapper;
 
+	private static final String MIME_TYPE = "mimeType";
+	private static final String APPLICATION_PDF = "application/pdf";
+
 	public void insertStartData(String contentId, String fileName) {
 
 		PdfDocValidationResponse pdfResponse = getContentValidationResponseForFile(contentId, fileName);
@@ -43,14 +46,14 @@ public class ContentValidationRepoServiceImpl {
 		if (pdfResponse != null) {
 			pdfResponse.setCompleted(false);
 			pdfResponse.setErrorMessage("");
-			pdfResponse.setImage_occurances("");
-			pdfResponse.setOverall_text_classification("");
-			pdfResponse.setProfanity_word_count(0);
+			pdfResponse.setImageOccurances("");
+			pdfResponse.setOverallTextClassification("");
+			pdfResponse.setProfanityWordCount(0);
 			pdfResponse.setProfanityWordList(null);
 			pdfResponse.setScore(0.0);
-			pdfResponse.setTotal_page_images(0);
+			pdfResponse.setTotalPageImages(0);
 			pdfResponse.setNoOfPagesCompleted(0);
-			pdfResponse.setTotal_pages(0);
+			pdfResponse.setTotalPages(0);
 		} else {
 			pdfResponse = new PdfDocValidationResponse();
 			pdfResponse.setPrimaryKey(
@@ -64,15 +67,15 @@ public class ContentValidationRepoServiceImpl {
 		PdfDocValidationResponse responseExisting = getContentValidationResponseForFile(
 				newResponse.getPrimaryKey().getContentId(), newResponse.getPrimaryKey().getPdfFileName());
 		if (responseExisting != null) {
-			responseExisting.setOverall_text_classification(newResponse.getOverall_text_classification());
-			responseExisting.setProfanity_word_count(newResponse.getProfanity_word_count());
+			responseExisting.setOverallTextClassification(newResponse.getOverallTextClassification());
+			responseExisting.setProfanityWordCount(newResponse.getProfanityWordCount());
 			responseExisting.setProfanityWordList(newResponse.getProfanityWordList());
 			responseExisting.setScore(newResponse.getScore());
 			responseExisting.setNoOfPagesCompleted(newResponse.getNoOfPagesCompleted());
 			responseExisting.setCompleted(isCompleted);
-			responseExisting.setTotal_page_images(newResponse.getTotal_page_images());
+			responseExisting.setTotalPageImages(newResponse.getTotalPageImages());
 			responseExisting.setProfanityWordList(newResponse.getProfanityWordList());
-			responseExisting.setImage_occurances(newResponse.getImage_occurances());
+			responseExisting.setImageOccurances(newResponse.getImageOccurances());
 			responseExisting.setProfanityImageAnalysisMap(newResponse.getProfanityImageAnalysisMap());
 			responseExisting.setIndiaMapClassification(newResponse.getIndiaMapClassification());
 			pdfRepo.save(responseExisting);
@@ -88,9 +91,8 @@ public class ContentValidationRepoServiceImpl {
 	public List<PdfDocValidationResponse> getContentValidationResponse(String rootOrg, String wid, String contentId){
 		Map<String, String> identifierAndPdfFileName = getParentAndChildContentId(contentId);
 		List<PdfDocValidationResponse> responses = new ArrayList<>();
-		identifierAndPdfFileName.forEach((k,v) ->{
-			responses.add(pdfRepo.findProgressByContentIdAndPdfFileName(k, v));
-		});
+		identifierAndPdfFileName.forEach((k,v) ->
+			responses.add(pdfRepo.findProgressByContentIdAndPdfFileName(k, v)));
 		return responses;
 	}
 
@@ -99,26 +101,23 @@ public class ContentValidationRepoServiceImpl {
 		try {
 			StringBuilder url = new StringBuilder();
 			url.append(configuration.getContentHost()).append(configuration.getHierarchyEndPoint()).append("/" + contentId).append("?mode=edit");
-//			log.info("URL for Hierarchy End Point :: {}", url);
 			Map response = mapper.convertValue(requestHandlerService.fetchResult(url.toString()), Map.class);
-//			log.info("Response of Hierarchy search request {}", mapper.writeValueAsString(response));
 			if (!ObjectUtils.isEmpty(response.get("result"))) {
 				Map<String, Object> result = (Map<String, Object>) response.get("result");
 				Map<String, Object> content = (Map<String, Object>) result.get("content");
 				if (!CollectionUtils.isEmpty(content)) {
-					if (content.get("mimeType").equals("application/pdf"))
+					if (content.get(MIME_TYPE).equals(APPLICATION_PDF))
 						contentIds.add(contentId);
 					List<Map<String, Object>> children = (List<Map<String, Object>>) content.get("children");
 					if (!CollectionUtils.isEmpty(children)) {
 						children.forEach(child -> {
-							if (!StringUtils.isEmpty(child.get("mimeType")) && child.get("mimeType").equals("application/pdf")) {
+							if (!StringUtils.isEmpty(child.get(MIME_TYPE)) && child.get(MIME_TYPE).equals(APPLICATION_PDF)) {
 								contentIds.add((String) child.get("identifier"));
 							}
 						});
 					}
 				}
 			}
-//			log.info("ContentIds {}", contentIds);
 		} catch (Exception e) {
 			log.error("Parsing error occured!", e);
 		}
@@ -130,11 +129,9 @@ public class ContentValidationRepoServiceImpl {
 		try {
 			StringBuilder url = new StringBuilder();
 			url.append(configuration.getContentHost()).append(configuration.getHierarchyEndPoint()).append("/" + contentId).append("?mode=edit");
-//			log.info("URL for Hierarchy End Point :: {}", url);
 			HierarchyResp response = mapper.convertValue(requestHandlerService.fetchResult(url.toString()), HierarchyResp.class);
-//			log.info("Response of Hierarchy search request {}", mapper.writeValueAsString(response));
 			if(!ObjectUtils.isEmpty(response.getResult())){
-				if("application/pdf".equals(response.getResult().getContent().getMediaType())){
+				if(APPLICATION_PDF.equals(response.getResult().getContent().getMediaType())){
 				String downloadUrl = response.getResult().getContent().getDownloadUrl();
 				if(!StringUtils.isEmpty(downloadUrl)){
 					downloadUrl =  downloadUrl.split("/")[7];
@@ -145,7 +142,6 @@ public class ContentValidationRepoServiceImpl {
 					addValueFromChildren(response.getResult().getContent().getChildren(), contentIdAndFilesName);
 				}
 			}
-//			log.info("Final map , {}", mapper.writeValueAsString(contentIdAndFilesName));
 		} catch (Exception e) {
 			log.error("Parsing error occurred!", e);
 		}
@@ -158,7 +154,7 @@ public class ContentValidationRepoServiceImpl {
 		for (Child child : children) {
 			if (ObjectUtils.isEmpty(child))
 				return;
-			if ("application/pdf".equals(child.getMimeType())) {
+			if (APPLICATION_PDF.equals(child.getMimeType())) {
 				String downloadUrl = child.getArtifactUrl();
 				if (!StringUtils.isEmpty(downloadUrl)) {
 					downloadUrl = downloadUrl.split("/")[7];

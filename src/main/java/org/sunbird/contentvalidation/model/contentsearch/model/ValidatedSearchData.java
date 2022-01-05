@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class ValidatedSearchData implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	public static List<String> supportedLocales = Arrays.asList("ar","br","cz","da","de","el","en","es","fr","fr_ca","hr","hu","id","it","ja","ko","nl","no","pl","pt","ru","sl","sv","th","tr","zh");
+	protected static final List<String> supportedLocales = Arrays.asList("ar","br","cz","da","de","el","en","es","fr","fr_ca","hr","hu","id","it","ja","ko","nl","no","pl","pt","ru","sl","sv","th","tr","zh");
 
 	@PositiveOrZero
     private int pageNo = 0;
@@ -53,14 +53,14 @@ public class ValidatedSearchData implements Serializable {
     @AssertTrue(groups = {ValidationGroupGeneralSearch.class, ValidationGroupAuthoringToolSearch.class}, message = "No accessPaths found, User Unauthorized")
     private boolean isAccessPaths() {
         if (true) {
-            return accessPaths.size() > 0;
+            return !accessPaths.isEmpty();
         } else return true;
     }
 
     @AssertTrue(message = "sort only applicable if query is empty or if it's an all search")
     private boolean isSort() {
-        if (sort.size() > 0) {
-            if (sort.stream().filter(item -> item.size() > 0).collect(Collectors.toList()).size() > 0)
+        if (!sort.isEmpty()) {
+            if (!sort.stream().filter(item -> item.size() > 0).collect(Collectors.toList()).isEmpty())
                 return StringUtils.isEmpty(query) || query.equals("*") || query.equalsIgnoreCase("all");
             else
                 return true;

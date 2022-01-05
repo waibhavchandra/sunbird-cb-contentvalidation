@@ -161,7 +161,6 @@ public class ContentValidationServiceImpl implements ContentValidationService {
 				logStr.append("Time taken to download PDF File: ").append(System.currentTimeMillis() - startTime)
 						.append(" milliseconds");
 			}
-			//String fileName = contentPdfValidation.getPdfDownloadUrl().split("artifacts%2F")[1];
 			String fileName = contentPdfValidation.getPdfDownloadUrl().split("/")[7];
 			response = performProfanityAnalysis(inputStream, fileName,
 					contentPdfValidation.getContentId());
@@ -236,21 +235,21 @@ public class ContentValidationServiceImpl implements ContentValidationService {
 	private void updateProfanityWordOccurence(Profanity profanity, int pageNo,
 			ProfanityResponseWrapper responseWrapper) {
 		responseWrapper.setOverAllOffensivescore(responseWrapper.getOverAllOffensivescore()
-				+ profanity.getOverall_text_classification().getProbability());
-		if (profanity.getPossible_profane_word_count() > 0) {
+				+ profanity.getOverallTextClassification().getProbability());
+		if (profanity.getPossibleProfaneWordCount() > 0) {
 			HashMap<String, ProfanityWordCount> wordCountMap = responseWrapper.getProfanityClassifications();
 			ProfanityWordCount wordCount = null;
-			int size = profanity.getPossible_profanity_frequency().size();
+			int size = profanity.getPossibleProfanityFrequency().size();
 			for (int i = 0; i < size; i++) {
 				if (CollectionUtils.isEmpty(wordCountMap)) {
 					wordCountMap = new HashMap<>();
 				}
-				String profaneWord = profanity.getPossible_profanity_frequency().get(i).getWord();
-				Integer totalWordCount = (Integer) profanity.getPossible_profanity_frequency().get(i)
-						.getNo_of_occurrence();
+				String profaneWord = profanity.getPossibleProfanityFrequency().get(i).getWord();
+				Integer totalWordCount = profanity.getPossibleProfanityFrequency().get(i)
+						.getNoOfOccurrence();
 				if (ObjectUtils.isEmpty(wordCountMap.get(profaneWord))) {
 					wordCount = new ProfanityWordCount();
-					wordCount.setOffenceCategory(profanity.getOverall_text_classification().getClassification());
+					wordCount.setOffenceCategory(profanity.getOverallTextClassification().getClassification());
 					wordCount.setOccurenceOnPage(new HashSet<>());
 					wordCount.getOccurenceOnPage().add(pageNo);
 					wordCount.setTotalWordCount(totalWordCount);
@@ -258,7 +257,7 @@ public class ContentValidationServiceImpl implements ContentValidationService {
 					responseWrapper.setProfanityWordCount(responseWrapper.getProfanityWordCount() + 1);
 				} else {
 					wordCountMap.get(profaneWord)
-							.setOffenceCategory(profanity.getOverall_text_classification().getClassification());
+							.setOffenceCategory(profanity.getOverallTextClassification().getClassification());
 					wordCountMap.get(profaneWord).getOccurenceOnPage().add(pageNo);
 				}
 			}
@@ -291,28 +290,28 @@ public class ContentValidationServiceImpl implements ContentValidationService {
 					log.debug("Page wise analysis PageNo: {}, Analysis: {}", p,
 							mapper.writeValueAsString(profanityResponse));
 					if(!CollectionUtils.isEmpty(profanityResponse
-							.getPossible_profanity_categorical())){
+							.getPossibleProfanityCategorical())){
 						for (Map.Entry<String, ProfanityCategorial> profanityCategorial : profanityResponse
-								.getPossible_profanity_categorical().entrySet()) {
+								.getPossibleProfanityCategorical().entrySet()) {
 							Map.Entry<String, String> details = profanityCategorial.getValue().getDetails().entrySet().iterator().next();
 							String category = details.getKey();
 							ProfanityWordFrequency wordFrequency = new ProfanityWordFrequency();
 							wordFrequency.setWord(profanityCategorial.getKey());
-							wordFrequency.setNo_of_occurrence(profanityCategorial.getValue().getCount());
+							wordFrequency.setNoOfOccurrence(profanityCategorial.getValue().getCount());
 							wordFrequency.setCategory(category);
 							wordFrequency.addPageOccurred(getPageNumberForIndex(p));
 							response.addProfanityWordFrequency(wordFrequency);
 							response.incrementProfanityWordCount();
 						}
 					}
-					overAllClassification += profanityResponse.getOverall_text_classification().getProbability();
-					if (StringUtils.isEmpty(response.getOverall_text_classification())) {
-						response.setOverall_text_classification(
-								profanityResponse.getOverall_text_classification().getClassification());
+					overAllClassification += profanityResponse.getOverallTextClassification().getProbability();
+					if (StringUtils.isEmpty(response.getOverallTextClassification())) {
+						response.setOverallTextClassification(
+								profanityResponse.getOverallTextClassification().getClassification());
 					} else {
-						response.setOverall_text_classification(
-								commonUtils.getProfanityClassification(response.getOverall_text_classification(),
-										profanityResponse.getOverall_text_classification().getClassification()));
+						response.setOverallTextClassification(
+								commonUtils.getProfanityClassification(response.getOverallTextClassification(),
+										profanityResponse.getOverallTextClassification().getClassification()));
 					}
 				}
 				response.incrementTotalNoOfPagesCompleted();
@@ -326,7 +325,7 @@ public class ContentValidationServiceImpl implements ContentValidationService {
 				totalTime += perPageTime;
 				repoService.updateContentValidationResult(response, false);
 			}
-			response.setScore(overAllClassification / (double) docPages.size());
+			response.setScore(overAllClassification /  docPages.size());
 
 			if (log.isDebugEnabled()) {
 				log.debug("Time taken to perform Profanity Analysis for document {} is {} milliseconds", fileName,
@@ -379,19 +378,19 @@ public class ContentValidationServiceImpl implements ContentValidationService {
 					Map<String, Object> extResponse = getProfanityCheckForImage(f.getName(), f);
 					ImageResponse imageResponse = mapper.convertValue(extResponse, ImageResponse.class);
 					log.info("" + imageResponse);
-					if (!ObjectUtils.isEmpty(imageResponse.getPayload()) && !ObjectUtils.isEmpty(imageResponse.getPayload().getImage_profanity())) {
+					if (!ObjectUtils.isEmpty(imageResponse.getPayload()) && !ObjectUtils.isEmpty(imageResponse.getPayload().getImageProfanity())) {
 						profanityImageAnalysis.setClassification(imageResponse.getPayload().getClassification());
 						profanityImageAnalysis.setImageNo(imageNo);
-						profanityImageAnalysis.setSafe(imageResponse.getPayload().getImage_profanity().isIs_safe());
+						profanityImageAnalysis.setSafe(imageResponse.getPayload().getImageProfanity().isSafe());
 						profanityImageAnalysisList.add(profanityImageAnalysis);
 					}
 					if (!ObjectUtils.isEmpty(imageResponse.getPayload()) && !ObjectUtils.isEmpty(imageResponse.getPayload().getIndia_classification())) {
 						profanityIndiaMapAnalysis.setImageNo(imageNo);
 						profanityIndiaMapAnalysis.setProbability((float)(imageResponse.getPayload().getIndia_classification().get(0).getPercentage_probability() / 100));
-						profanityIndiaMapAnalysis.setIncorrect_percentage((float)(imageResponse.getPayload().getIndia_classification().get(0).getClassification().getIncorrect_percentage() / 100));
-						profanityIndiaMapAnalysis.setIs_india_map_detected(false);
-						if(profanityIndiaMapAnalysis.getIncorrect_percentage() < .50){
-							profanityIndiaMapAnalysis.setIs_india_map_detected(true);
+						profanityIndiaMapAnalysis.setIncorrectPercentage((float)(imageResponse.getPayload().getIndia_classification().get(0).getClassification().getIncorrectPercentage() / 100));
+						profanityIndiaMapAnalysis.setIsIndiaMapDetected(false);
+						if(profanityIndiaMapAnalysis.getIncorrectPercentage() < .50){
+							profanityIndiaMapAnalysis.setIsIndiaMapDetected(true);
 						}
 						profanityIndiaMapList.add(profanityIndiaMapAnalysis);
 					}
@@ -413,7 +412,7 @@ public class ContentValidationServiceImpl implements ContentValidationService {
 	private void enrichTotalPages(String contentId, String fileName, int size) {
 		try {
 			PdfDocValidationResponse pdfResponse = pdfRepo.findProgressByContentIdAndPdfFileName(contentId, fileName);
-			pdfResponse.setTotal_pages(size);
+			pdfResponse.setTotalPages(size);
 			pdfRepo.save(pdfResponse);
 		} catch (Exception e) {
 			log.error("Exception occurred while reading the pdf", e);
@@ -427,7 +426,7 @@ public class ContentValidationServiceImpl implements ContentValidationService {
 		try {
 			log.info(mapper.writeValueAsString(mapper.convertValue(response, Map.class)));
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			log.error(e);
 		}
 		return mapper.convertValue(response, Map.class);
 	}

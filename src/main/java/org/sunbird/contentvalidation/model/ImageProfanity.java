@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ImageProfanity {
-    private boolean is_safe;
+    private boolean isSafe;
     @JsonProperty("nsfw-nude")
     private int nsfwNude;
     @JsonProperty("nsfw-risque")
@@ -16,12 +16,12 @@ public class ImageProfanity {
     private int nsfwViolence;
     private int sfw;
 
-    public boolean isIs_safe() {
-        return is_safe;
+    public boolean isSafe() {
+        return isSafe;
     }
 
-    public void setIs_safe(boolean is_safe) {
-        this.is_safe = is_safe;
+    public void setIsSafe(boolean is_safe) {
+        this.isSafe = is_safe;
     }
 
     public int getNsfwNude() {

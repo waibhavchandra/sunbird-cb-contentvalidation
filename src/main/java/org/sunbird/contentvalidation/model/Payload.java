@@ -7,9 +7,8 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Payload {
     private String classification;
-    private ImageProfanity image_profanity;
-    private List<IndiaMapClassification> india_classification;
-//    private Profanity text_profanity;
+    private ImageProfanity imageProfanity;
+    private List<IndiaMapClassification> indiaClassification;
 
     public String getClassification() {
         return classification;
@@ -19,27 +18,20 @@ public class Payload {
         this.classification = classification;
     }
 
-    public ImageProfanity getImage_profanity() {
-        return image_profanity;
+    public ImageProfanity getImageProfanity() {
+        return imageProfanity;
     }
 
-    public void setImage_profanity(ImageProfanity image_profanity) {
-        this.image_profanity = image_profanity;
+    public void setImageProfanity(ImageProfanity imageProfanity) {
+        this.imageProfanity = imageProfanity;
     }
 
     public List<IndiaMapClassification> getIndia_classification() {
-        return india_classification;
+        return indiaClassification;
     }
 
-    public void setIndia_classification(List<IndiaMapClassification> india_classification) {
-        this.india_classification = india_classification;
+    public void setIndia_classification(List<IndiaMapClassification> indiaClassification) {
+        this.indiaClassification = indiaClassification;
     }
 
-//    public Profanity getText_profanity() {
-//        return text_profanity;
-//    }
-//
-//    public void setText_profanity(Profanity text_profanity) {
-//        this.text_profanity = text_profanity;
-//    }
 }

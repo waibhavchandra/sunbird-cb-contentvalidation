@@ -56,34 +56,6 @@ public class Filters implements Serializable {
     private List<String> isInIntranet = Collections.emptyList();
     private List<String> mimeType = Collections.emptyList();
 
-//    @AssertTrue(message = "Can be applied only if " + SearchConstants.FILTER_CONTENT_TYPE_FIELD_KEY + " has " + SearchConstants.RESOURCE)
-//    private boolean isResourceType() {
-//        if (resourceType.size() > 0) {
-//            return contentType.contains(SearchConstants.RESOURCE);
-//        } else return true;
-//    }
-
-//    @AssertTrue(message = "Can be applied only if " + SearchConstants.FILTER_CONTENT_TYPE_FIELD_KEY + " has " + SearchConstants.RESOURCE)
-//    private boolean isResourceCategory() {
-//        if (resourceCategory.size() > 0) {
-//            return contentType.contains(SearchConstants.RESOURCE);
-//        } else return true;
-//    }
-
-//    @AssertTrue(message = "Can be applied only if " + SearchConstants.FILTER_CONTENT_TYPE_FIELD_KEY + " has " + SearchConstants.COURSE)
-//    private boolean getIsExternal() {
-//        if (isExternal.size() > 0) {
-//            return contentType.contains(SearchConstants.COURSE);
-//        } else return true;
-//    }
-
-//    @AssertTrue(message = "Can be applied only if " + SearchConstants.FILTER_CONTENT_TYPE_FIELD_KEY + " has " + SearchConstants.COURSE)
-//    private boolean isLearningMode() {
-//        if (learningMode.size() > 0) {
-//            return contentType.contains(SearchConstants.COURSE);
-//        } else return true;
-//    }
-
     @AssertTrue(message = "Filter not allowed", groups = ValidationGroupGeneralSearch.class)
     private boolean isStatus() {
         return status.size() == 2 && status.contains(SearchStatuses.Live) && status.contains(SearchStatuses.MarkedForDeletion);
@@ -91,7 +63,7 @@ public class Filters implements Serializable {
 
     @AssertFalse(message = "Filter not allowed", groups = ValidationGroupGeneralSearch.class)
     private boolean isIsRejected() {
-        return isRejected.size() > 0;
+        return !isRejected.isEmpty();
     }
 
     public List<String> getSkills() {

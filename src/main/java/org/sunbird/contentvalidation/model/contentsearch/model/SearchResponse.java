@@ -14,7 +14,7 @@ public class SearchResponse {
 
     public SearchResponse() {
         this.responseCode = "OK";
-        this.result = new HashMap();
+        this.result = new HashMap<>();
     }
 
     public String getId() {
