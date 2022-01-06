@@ -13,19 +13,19 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Profanity {
 
-	private String text_original;
+	private String textOriginal;
 
-	private String text_tagged;
+	private String textTagged;
 
-	private List<String> possible_profanity;
+	private List<String> possibleProfanity;
 
-	private Integer possible_profane_word_count;
+	private Integer possibleProfaneWordCount;
 
-	private List<ProfanityLineClassification> line_analysis;
+	private List<ProfanityLineClassification> lineAnalysis;
 
-	private ProfanityClassification overall_text_classification;
+	private ProfanityClassification overallTextClassification;
 
-	private List<ProfanityWordFrequency> possible_profanity_frequency;
+	private List<ProfanityWordFrequency> possibleProfanityFrequency;
 
-	private HashMap<String, ProfanityCategorial> possible_profanity_categorical;
+	private HashMap<String, ProfanityCategorial> possibleProfanityCategorical;
 }

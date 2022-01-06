@@ -30,22 +30,22 @@ public class PdfDocValidationResponse {
     private Integer noOfPagesCompleted;
 
     @Column("total_pages")
-    private Integer total_pages;
+    private Integer totalPages;
 
     @Column("profanity_word_count")
-    private Integer profanity_word_count;
+    private Integer profanityWordCount;
 
     @Column("total_page_images")
-    private Integer total_page_images;
+    private Integer totalPageImages;
 
     @Column("score")
     private double score;
 
     @Column("image_occrances")
-    private String image_occurances;
+    private String imageOccurances;
 
     @Column("overall_text_classification")
-    private String overall_text_classification;
+    private String overallTextClassification;
 
     @Column("error_message")
     private String errorMessage;
@@ -82,26 +82,26 @@ public class PdfDocValidationResponse {
     }
 
     public void incrementTotalPagesImages() {
-        if (total_page_images == null) {
-            total_page_images = 1;
+        if (totalPageImages == null) {
+            totalPageImages = 1;
         } else {
-            total_page_images++;
+            totalPageImages++;
         }
     }
 
     public void incrementProfanityWordCount() {
-        if (profanity_word_count == null) {
-            profanity_word_count = 1;
+        if (profanityWordCount == null) {
+            profanityWordCount = 1;
         } else {
-            profanity_word_count++;
+            profanityWordCount++;
         }
     }
 
     public void addImageOccurances(int pageIndex) {
-        if (StringUtils.isEmpty(this.image_occurances)) {
-            this.image_occurances = String.valueOf(pageIndex + 1);
+        if (StringUtils.isEmpty(this.imageOccurances)) {
+            this.imageOccurances = String.valueOf(pageIndex + 1);
         } else {
-            this.image_occurances = this.image_occurances + ", " + (pageIndex + 1);
+            this.imageOccurances = this.imageOccurances + ", " + (pageIndex + 1);
         }
     }
 

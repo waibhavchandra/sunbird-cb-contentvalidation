@@ -16,12 +16,12 @@ public class ContentPdfValidationResponse {
 	@Id
 	private String id;
 
-	private int total_pages;
-	private int profanity_word_count;
-	private int total_page_images;
+	private int totalPages;
+	private int profanityWordCount;
+	private int totalPageImages;
 	private double score;
 	private String pdfFileName;
-	private String image_occurances;
+	private String imageOccurances;
 	private String overall_text_classification;
 	private List<ProfanityWordFrequency> profanityWordList = Collections.emptyList();
 	private String contentId;
@@ -29,11 +29,11 @@ public class ContentPdfValidationResponse {
 	private String errorMessage;
 
 	public void incrementTotalPages() {
-		total_pages++;
+		totalPages++;
 	}
 
 	public void incrementProfanityWordCount() {
-		profanity_word_count++;
+		profanityWordCount++;
 	}
 
 	public void addProfanityWordDetails(ProfanityWordFrequency profanityWord) {

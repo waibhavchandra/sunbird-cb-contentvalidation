@@ -17,7 +17,7 @@ import lombok.Setter;
 public class ProfanityWordFrequency {
 
 	@Column("no_of_occurrence")
-	private Integer no_of_occurrence;
+	private Integer noOfOccurrence;
 
 	@Column("page_occurred")
 	private Set<Integer> pageOccurred;
