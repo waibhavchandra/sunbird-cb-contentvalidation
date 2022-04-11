@@ -287,7 +287,7 @@ public class ContentValidationServiceImpl implements ContentValidationService {
 				String text = pdfStripper.getText(docPages.get(p));
 				if (!StringUtils.isEmpty(text) && !commonUtils.emptyCheck(text)) {
 					Profanity profanityResponse = getProfanityCheckForText(text);
-					log.debug("Page wise analysis PageNo: {}, Analysis: {}", p,
+					log.info("Page wise analysis PageNo: {}, Analysis: {}", p,
 							mapper.writeValueAsString(profanityResponse));
 					if(!CollectionUtils.isEmpty(profanityResponse
 							.getPossibleProfanityCategorical())){
