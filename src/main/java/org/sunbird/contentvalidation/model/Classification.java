@@ -1,8 +1,12 @@
 
 package org.sunbird.contentvalidation.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Classification {
+	@JsonProperty("correct_percentage")
     private int correctPercentage;
+	@JsonProperty("incorrect_percentage")
     private int incorrectPercentage;
 
     public int getCorrectPercentage() {

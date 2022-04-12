@@ -1,13 +1,16 @@
 package org.sunbird.contentvalidation.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Payload {
     private String classification;
+	@JsonProperty("image_profanity")
     private ImageProfanity imageProfanity;
+	@JsonProperty("india_classification")
     private List<IndiaMapClassification> indiaClassification;
 
     public String getClassification() {

@@ -1,7 +1,10 @@
 package org.sunbird.contentvalidation.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class IndiaMapClassification {
     private Classification classification;
+    @JsonProperty("percentage_probability")
     private double percentageProbability;
     private String present;
 
