@@ -10,7 +10,7 @@ import lombok.Setter;
 public class ProfanityLineClassification {
 	private String classification;
 
-	private String line;
+	private String text;
 
 	private Double probability;
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ImageProfanity {
+	@JsonProperty("is_safe")
     private boolean isSafe;
     @JsonProperty("nsfw-nude")
     private int nsfwNude;
