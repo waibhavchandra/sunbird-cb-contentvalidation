@@ -150,12 +150,14 @@ public class ContentValidationServiceImpl implements ContentValidationService {
 	public PdfDocValidationResponse validatePdfContent(ContentPdfValidation contentPdfValidation) throws IOException {
 		StringBuilder logStr = null;
 		PdfDocValidationResponse response =  null;
+		log.info("inside validatePdfContent: {}", contentPdfValidation);
 		if (log.isDebugEnabled()) {
 			logStr = new StringBuilder();
 			logStr.append("ValidatePDFContent request: ").append(mapper.writeValueAsString(contentPdfValidation));
 		}
 		long startTime = System.currentTimeMillis();
 		InputStream inputStream = contentProviderService.getContentFile(contentPdfValidation.getPdfDownloadUrl());
+		log.info("inside validatePdfContent got he content stream.");
 		try {
 			if (logStr != null) {
 				logStr.append("Time taken to download PDF File: ").append(System.currentTimeMillis() - startTime)
@@ -267,6 +269,7 @@ public class ContentValidationServiceImpl implements ContentValidationService {
 
 	private PdfDocValidationResponse performProfanityAnalysis(InputStream inputStream, String fileName,
 			String contentId) throws IOException {
+		log.info("inside performProfanityAnalysis for {}.", fileName);
 		PdfDocValidationResponse response = new PdfDocValidationResponse();
 		response.setPrimaryKey(
 				PdfDocValidationResponsePrimaryKey.builder().contentId(contentId).pdfFileName(fileName).build());
@@ -280,6 +283,7 @@ public class ContentValidationServiceImpl implements ContentValidationService {
 			long totalTime = 0l;
 			double overAllClassification = 0.0;
 			for (int p = 0; p < docPages.size(); p++) {
+				log.info("inside performProfanityAnalysis. looping through pages. page: {}.", p);
 				long startTime = System.currentTimeMillis();
 				pdfStripper = new PDFTextStripper();
 				pdfStripper.setAddMoreFormatting(false);
@@ -287,7 +291,7 @@ public class ContentValidationServiceImpl implements ContentValidationService {
 				String text = pdfStripper.getText(docPages.get(p));
 				if (!StringUtils.isEmpty(text) && !commonUtils.emptyCheck(text)) {
 					Profanity profanityResponse = getProfanityCheckForText(text);
-					log.debug("Page wise analysis PageNo: {}, Analysis: {}", p,
+					log.info("Page wise analysis PageNo: {}, Analysis: {}", p,
 							mapper.writeValueAsString(profanityResponse));
 					if(!CollectionUtils.isEmpty(profanityResponse
 							.getPossibleProfanityCategorical())){
@@ -410,9 +414,11 @@ public class ContentValidationServiceImpl implements ContentValidationService {
 	}
 
 	private void enrichTotalPages(String contentId, String fileName, int size) {
+		log.info("inside enrichTotalPages for {}.", fileName);
 		try {
 			PdfDocValidationResponse pdfResponse = pdfRepo.findProgressByContentIdAndPdfFileName(contentId, fileName);
 			pdfResponse.setTotalPages(size);
+			log.info("inside enrichTotalPages. totalPages: {}.", size);
 			pdfRepo.save(pdfResponse);
 		} catch (Exception e) {
 			log.error("Exception occurred while reading the pdf", e);
