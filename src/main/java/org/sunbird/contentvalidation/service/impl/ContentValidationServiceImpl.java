@@ -319,7 +319,9 @@ public class ContentValidationServiceImpl implements ContentValidationService {
 					}
 				}
 				response.incrementTotalNoOfPagesCompleted();
+				log.info("text analysis done. Response: {}.", response);
 				extractImagesAndUpdateThPdfeResponse(fileName, doc.getPages().get(p), p, response);
+				log.info("image analysis attempted.");
 				long perPageTime = System.currentTimeMillis() - startTime;
 
 				if (log.isDebugEnabled()) {
@@ -327,6 +329,7 @@ public class ContentValidationServiceImpl implements ContentValidationService {
 							getPageNumberForIndex(p), perPageTime);
 				}
 				totalTime += perPageTime;
+				log.info("calling repoService with response: {}", response);
 				repoService.updateContentValidationResult(response, false);
 			}
 			response.setScore(overAllClassification /  docPages.size());
