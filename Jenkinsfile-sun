@@ -53,7 +53,7 @@ node('build-slave') {
         throw err
     }
    /*  finally {
-        email_notify()
+    //    email_notify()
     }
 */
 }
