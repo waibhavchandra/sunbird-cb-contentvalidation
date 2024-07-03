@@ -64,6 +64,7 @@ public class ContentValidationRepoServiceImpl {
 	}
 
 	public void updateContentValidationResult(PdfDocValidationResponse newResponse, boolean isCompleted) {
+		log.info("inside updateContentValidationResult. newResponse : {}", newResponse);
 		PdfDocValidationResponse responseExisting = getContentValidationResponseForFile(
 				newResponse.getPrimaryKey().getContentId(), newResponse.getPrimaryKey().getPdfFileName());
 		if (responseExisting != null) {
@@ -79,6 +80,7 @@ public class ContentValidationRepoServiceImpl {
 			responseExisting.setProfanityImageAnalysisMap(newResponse.getProfanityImageAnalysisMap());
 			responseExisting.setIndiaMapClassification(newResponse.getIndiaMapClassification());
 			pdfRepo.save(responseExisting);
+			log.info("inside updateContentValidationResult. saved responseExisting: {}", responseExisting);
 		} else {
 			log.error("Failed to find existing record from latestResponse");
 		}
